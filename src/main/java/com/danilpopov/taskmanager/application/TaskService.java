@@ -32,13 +32,13 @@ public class TaskService {
 
         Task task = new Task();
 
-        if(addTaskDto.getTaskname() != null){
-            task.setName(addTaskDto.getTaskname());
+        if(addTaskDto.taskName() != null){
+            task.setName(addTaskDto.taskName());
         }
 
-        if(addTaskDto.getCreatorId() != null){
+        if(addTaskDto.creatorId() != null){
 
-            User creator = userRepository.findById(addTaskDto.getCreatorId())
+            User creator = userRepository.findById(addTaskDto.creatorId())
                     .orElseThrow(() -> new RuntimeException("Creator not found"));
 
             task.setCreator(creator);
@@ -47,17 +47,18 @@ public class TaskService {
         return taskRepository.save(task);
     }
     public Task updateTask(Long taskId, UpdateTaskDto updateTaskDto){
-        Task task;
+        Task task = new Task();
         if(taskId != null){
             task = taskRepository.findById(taskId).
                     orElseThrow(() -> new RuntimeException("Task not found"));
         }
-        if(updateTaskDto.getTaskName() != null){
-            task.setName(updateTaskDto.getTaskName());
+        if(updateTaskDto.taskName() != null){
+            task.setName(updateTaskDto.taskName());
         }
-        if(updateTaskDto.getCreatorId() != null){
-            /// task.user = userRepository.findById(updateTaskDto.getCreatorId()).
-            /// orElseThrow("creator not found");
+        if(updateTaskDto.creatorId() != null){
+            var user = userRepository.findById(updateTaskDto.creatorId()).
+            orElseThrow(() -> new RuntimeException("creator not found"));
+            task.setCreator(user);
         }
         return taskRepository.update(task);
     }

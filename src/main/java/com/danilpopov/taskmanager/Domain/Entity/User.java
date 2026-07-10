@@ -1,18 +1,21 @@
 package com.danilpopov.taskmanager.Domain.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String username;
-
+    @JsonIgnore
+    private String passwordHash;
     @OneToMany(mappedBy = "creator")
     private List<Task> task = new ArrayList<>();
 
@@ -38,5 +41,13 @@ public class User {
 
     public void setTask(List<Task> task) {
         this.task = task;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 }
