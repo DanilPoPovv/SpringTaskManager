@@ -4,10 +4,12 @@ import com.danilpopov.taskmanager.Domain.Entity.User;
 import com.danilpopov.taskmanager.infrastructure.UserRepository;
 import com.danilpopov.taskmanager.presentation.controller.Dto.AddUserDto;
 import com.danilpopov.taskmanager.presentation.controller.Dto.UpdateUserDto;
+import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+@Transactional
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;

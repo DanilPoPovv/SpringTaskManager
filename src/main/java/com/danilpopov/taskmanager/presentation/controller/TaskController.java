@@ -17,23 +17,23 @@ public class TaskController {
         this.taskService = taskService;
     }
 
-    @GetMapping("task/getById/{taskId}")
+    @GetMapping("tasks/{taskId}")
     public Task getById(@PathVariable Long taskId){
         return taskService.getById(taskId);
     }
-    @GetMapping("task/getAll")
+    @GetMapping("tasks")
     public List<Task> getAllTask(){
         return taskService.getAllTask();
     }
-    @PostMapping("task/add")
+    @PostMapping("tasks")
     public Task createTask(@RequestBody AddTaskDto addTaskDto){
         return taskService.addTask(addTaskDto);
     }
-    @PutMapping("task/update/{taskId}")
+    @PutMapping("tasks/{taskId}")
     public Task updateTask(Long taskId, UpdateTaskDto updateTaskDto){
         return taskService.updateTask(taskId, updateTaskDto);
     }
-    @DeleteMapping("task/{taskId}")
+    @DeleteMapping("tasks/{taskId}")
     public void deleteTask(Long taskId){
         taskService.deleteTask(taskId);
     }

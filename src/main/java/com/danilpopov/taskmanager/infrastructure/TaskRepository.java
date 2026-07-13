@@ -3,6 +3,7 @@ package com.danilpopov.taskmanager.infrastructure;
 import com.danilpopov.taskmanager.Domain.Entity.Task;
 import com.danilpopov.taskmanager.infrastructure.interfaces.BaseRepository;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.Optional;
 
 @Repository
 public class TaskRepository implements BaseRepository<Task,Long> {
-
+    @PersistenceContext
     private final EntityManager entityManager;
 
     public TaskRepository(EntityManager entityManager) {

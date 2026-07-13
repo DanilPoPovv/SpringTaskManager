@@ -18,7 +18,8 @@ public class User {
     private String passwordHash;
     @OneToMany(mappedBy = "creator")
     private List<Task> task = new ArrayList<>();
-
+    @Enumerated(EnumType.STRING)
+    private Role role;
     public Long getId() {
         return id;
     }
@@ -49,5 +50,13 @@ public class User {
 
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
     }
 }

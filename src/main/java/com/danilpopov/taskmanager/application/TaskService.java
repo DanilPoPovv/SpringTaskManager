@@ -7,11 +7,13 @@ import com.danilpopov.taskmanager.infrastructure.UserRepository;
 import com.danilpopov.taskmanager.infrastructure.interfaces.BaseRepository;
 import com.danilpopov.taskmanager.presentation.controller.Dto.AddTaskDto;
 import com.danilpopov.taskmanager.presentation.controller.Dto.UpdateTaskDto;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@Transactional
 public class TaskService {
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
