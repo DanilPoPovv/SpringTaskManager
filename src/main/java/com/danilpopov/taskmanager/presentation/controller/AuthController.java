@@ -2,9 +2,9 @@ package com.danilpopov.taskmanager.presentation.controller;
 
 import com.danilpopov.taskmanager.application.AuthService;
 import com.danilpopov.taskmanager.presentation.controller.Dto.LoginDto;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.danilpopov.taskmanager.presentation.controller.Dto.RegisterDto;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("api/v1")
@@ -15,8 +15,12 @@ public class AuthController {
         this.authService = authService;
     }
 
-    @GetMapping("auth/login")
-    public String login(LoginDto loginDto){
+    @PostMapping("auth/login")
+    public String login(@Valid @RequestBody LoginDto loginDto){
         return authService.login(loginDto);
+    }
+    @PostMapping("auth/register")
+    public String register(@Valid @RequestBody RegisterDto registerDto) {
+        return authService.register(registerDto);
     }
 }

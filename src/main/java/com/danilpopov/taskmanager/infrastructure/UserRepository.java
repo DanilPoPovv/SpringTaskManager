@@ -65,4 +65,14 @@ public class UserRepository implements com.danilpopov.taskmanager.infrastructure
                 .getResultStream()
                 .findFirst();
     }
+    @Override
+    public boolean isUserExists(String username){
+        return !entityManager.createQuery("""
+                select 1
+                from User u 
+                where u.username = :username""", Integer.class)
+                .setParameter("username", username)
+                .getResultList()
+                .isEmpty();
+    }
 }

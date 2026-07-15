@@ -1,9 +1,11 @@
 package com.danilpopov.taskmanager.application;
 
 
+import com.danilpopov.taskmanager.Domain.Entity.Role;
 import com.danilpopov.taskmanager.Domain.Entity.User;
 import com.danilpopov.taskmanager.infrastructure.UserRepository;
 import com.danilpopov.taskmanager.presentation.controller.Dto.LoginDto;
+import com.danilpopov.taskmanager.presentation.controller.Dto.RegisterDto;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,12 +22,24 @@ public class AuthService {
     }
 
     public String login(LoginDto loginDto){
-        User user = userRepository.findByUsername(loginDto.username()).orElseThrow(
-                () -> new RuntimeException("User not found"));
-        boolean passwordMatch = passwordEncoder.matches(loginDto.password(),user.getPasswordHash());
-        if(!passwordMatch){
-            throw new RuntimeException("Password incorrect");
+        User user = userRepository.findByUsername(loginDto.username())
+                .orElseThrow(() -> new RuntimeException("Invalid username or password"));
+
+        if(!passwordEncoder.matches(loginDto.password(), user.getPasswordHash())){
+            throw new RuntimeException("Invalid username or password");
         }
+
+        return jwtService.generateJwt(user);
+    }
+    public String register(RegisterDto registerDto) {
+        if(userRepository.isUserExists(registerDto.username())){
+            throw new IllegalArgumentException("User already exists");
+        }
+        var user = new User();
+        user.setUsername(registerDto.username());
+        user.setPasswordHash(passwordEncoder.encode(registerDto.password()));
+        user.setRole(Role.USER);
+        user = userRepository.save(user);
         return jwtService.generateJwt(user);
     }
 }

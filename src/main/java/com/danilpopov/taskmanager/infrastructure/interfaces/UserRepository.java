@@ -7,4 +7,5 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends BaseRepository<User,Long>{
     public Optional<User> findByUsername(String username);
+    public boolean isUserExists(String username);
 }

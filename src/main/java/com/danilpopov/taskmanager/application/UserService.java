@@ -1,10 +1,13 @@
 package com.danilpopov.taskmanager.application;
 
+import com.danilpopov.taskmanager.Domain.Entity.Role;
 import com.danilpopov.taskmanager.Domain.Entity.User;
 import com.danilpopov.taskmanager.infrastructure.UserRepository;
 import com.danilpopov.taskmanager.presentation.controller.Dto.AddUserDto;
+import com.danilpopov.taskmanager.presentation.controller.Dto.Response.UserResponseDto;
 import com.danilpopov.taskmanager.presentation.controller.Dto.UpdateUserDto;
 import jakarta.transaction.Transactional;
+import org.springframework.expression.AccessException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -25,22 +28,30 @@ public class UserService {
                 orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-    public User createUser(AddUserDto addUserDto){
-        if(addUserDto.password() == null || addUserDto.username() == null) {
-            throw new IllegalArgumentException("Incorrect data");
+    public User createUser(Long userCreatorId,AddUserDto addUserDto){
+        var userCreator = userRepository.findById(userCreatorId).orElseThrow(() -> new RuntimeException("creator not found"));
+        if(userCreator.getRole().equals(Role.ADMIN)) {
+            throw new RuntimeException("Not enough rights");
+        }
+        if(userRepository.isUserExists(addUserDto.username())) {
+            throw new IllegalArgumentException("User already exists");
         }
         var user = new User();
         user.setUsername(addUserDto.username());
         user.setPasswordHash(passwordEncoder.encode(addUserDto.password()));
+        user.setRole(addUserDto.role());
         return userRepository.save(user);
     }
-    public User updateUser(Long userId, UpdateUserDto updateUserDto){
+    public UserResponseDto updateUser(Long userId, UpdateUserDto updateUserDto){
         if(updateUserDto.username() == null && updateUserDto.newPassword() == null){
             throw new IllegalArgumentException("Incorrect data");
         }
         User user = userRepository.findById(userId).
                 orElseThrow(() -> new RuntimeException("User not found"));
         if(updateUserDto.username() != null){
+            if(userRepository.isUserExists(updateUserDto.username())){
+                throw new IllegalArgumentException("User already exists");
+            }
             user.setUsername(updateUserDto.username());
         }
         if(updateUserDto.oldPassword() != null && updateUserDto.newPassword() != null) {
@@ -51,7 +62,7 @@ public class UserService {
             }
             user.setPasswordHash(passwordEncoder.encode(updateUserDto.newPassword()));
         }
-        return user;
+        return new UserResponseDto(user.getUsername(),user.getRole());
     }
     public void deleteUser(Long userId){
         User user = userRepository.findById(userId).
