@@ -34,7 +34,7 @@ public class AuthService {
     }
     public LoginResponse register(RegisterDto registerDto) {
         if(userRepository.isUserExists(registerDto.username())){
-            throw new IllegalArgumentException("User already exists");
+            throw new RuntimeException("User already exists");
         }
         var user = new User();
         user.setUsername(registerDto.username());

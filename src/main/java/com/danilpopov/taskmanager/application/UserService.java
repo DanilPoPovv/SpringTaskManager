@@ -34,7 +34,7 @@ public class UserService {
             throw new RuntimeException("Not enough rights");
         }
         if(userRepository.isUserExists(addUserDto.username())) {
-            throw new IllegalArgumentException("User already exists");
+            throw new RuntimeException("User already exists");
         }
         var user = new User();
         user.setUsername(addUserDto.username());
@@ -44,13 +44,13 @@ public class UserService {
     }
     public UserResponseDto updateUser(Long userId, UpdateUserDto updateUserDto){
         if(updateUserDto.username() == null && updateUserDto.newPassword() == null){
-            throw new IllegalArgumentException("Incorrect data");
+            throw new RuntimeException("Incorrect data");
         }
         User user = userRepository.findById(userId).
                 orElseThrow(() -> new RuntimeException("User not found"));
         if(updateUserDto.username() != null){
             if(userRepository.isUserExists(updateUserDto.username())){
-                throw new IllegalArgumentException("User already exists");
+                throw new RuntimeException("User already exists");
             }
             user.setUsername(updateUserDto.username());
         }
@@ -58,7 +58,7 @@ public class UserService {
             var passwordCorrect = passwordEncoder.
                     matches(updateUserDto.oldPassword(),user.getPasswordHash());
             if(!passwordCorrect) {
-                throw new IllegalArgumentException("Old password incorrect");
+                throw new RuntimeException("Old password incorrect");
             }
             user.setPasswordHash(passwordEncoder.encode(updateUserDto.newPassword()));
         }
