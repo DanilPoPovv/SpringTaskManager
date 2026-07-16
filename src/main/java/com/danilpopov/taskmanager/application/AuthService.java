@@ -6,6 +6,7 @@ import com.danilpopov.taskmanager.Domain.Entity.User;
 import com.danilpopov.taskmanager.infrastructure.UserRepository;
 import com.danilpopov.taskmanager.presentation.controller.Dto.LoginDto;
 import com.danilpopov.taskmanager.presentation.controller.Dto.RegisterDto;
+import com.danilpopov.taskmanager.presentation.controller.Dto.Response.LoginResponse;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +22,7 @@ public class AuthService {
         this.jwtService = jwtService;
     }
 
-    public String login(LoginDto loginDto){
+    public LoginResponse login(LoginDto loginDto){
         User user = userRepository.findByUsername(loginDto.username())
                 .orElseThrow(() -> new RuntimeException("Invalid username or password"));
 
@@ -29,9 +30,9 @@ public class AuthService {
             throw new RuntimeException("Invalid username or password");
         }
 
-        return jwtService.generateJwt(user);
+        return new LoginResponse(jwtService.generateJwt(user));
     }
-    public String register(RegisterDto registerDto) {
+    public LoginResponse register(RegisterDto registerDto) {
         if(userRepository.isUserExists(registerDto.username())){
             throw new IllegalArgumentException("User already exists");
         }
@@ -40,6 +41,6 @@ public class AuthService {
         user.setPasswordHash(passwordEncoder.encode(registerDto.password()));
         user.setRole(Role.USER);
         user = userRepository.save(user);
-        return jwtService.generateJwt(user);
+        return new LoginResponse(jwtService.generateJwt(user));
     }
 }
