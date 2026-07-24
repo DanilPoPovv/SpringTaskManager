@@ -1,6 +1,7 @@
 package com.danilpopov.taskmanager.Domain.Entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 
 @Entity
@@ -13,7 +14,8 @@ public class Task {
     @ManyToOne
     @JoinColumn(name = "creator_id")
     private User creator;
-
+    @Enumerated(EnumType.STRING)
+    private TaskPriority taskPriority;
     public Long getId() {
         return id;
     }
@@ -37,4 +39,19 @@ public class Task {
     public void setCreator(User creator) {
         this.creator = creator;
     }
+
+    public TaskPriority getTaskPriority() {
+        return taskPriority;
+    }
+
+    public void setTaskPriority(TaskPriority taskPriority) {
+        this.taskPriority = taskPriority;
+    }
+    @ManyToOne
+    @JoinColumn(name = "project_id")
+    private Project project;
+
+    @ManyToOne
+    @JoinColumn(name = "assignee_id")
+    private User assignee;
 }

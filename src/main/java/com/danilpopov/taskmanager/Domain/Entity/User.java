@@ -17,7 +17,9 @@ public class User {
     @JsonIgnore
     private String passwordHash;
     @OneToMany(mappedBy = "creator")
-    private List<Task> task = new ArrayList<>();
+    private List<Task> createdTasks  = new ArrayList<>();
+    @OneToMany(mappedBy = "assignee")
+    private List<Task> assignedTasks = new ArrayList<>();
     @Enumerated(EnumType.STRING)
     private Role role;
     public Long getId() {
@@ -36,13 +38,6 @@ public class User {
         this.username = username;
     }
 
-    public List<Task> getTask() {
-        return task;
-    }
-
-    public void setTask(List<Task> task) {
-        this.task = task;
-    }
 
     public String getPasswordHash() {
         return passwordHash;
@@ -58,5 +53,21 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public List<Task> getCreatedTasks() {
+        return createdTasks;
+    }
+
+    public void setCreatedTasks(List<Task> createdTasks) {
+        this.createdTasks = createdTasks;
+    }
+
+    public List<Task> getAssignedTasks() {
+        return assignedTasks;
+    }
+
+    public void setAssignedTasks(List<Task> assignedTasks) {
+        this.assignedTasks = assignedTasks;
     }
 }
