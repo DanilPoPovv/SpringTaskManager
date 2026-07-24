@@ -32,7 +32,8 @@ public class TaskService {
     public List<Task> getAllTask(){
         return taskRepository.getAll();
     }
-    public TaskResponseDto addTask(Long creatorId, @Valid AddTaskDto addTaskDto){
+
+    public TaskResponseDto addTask(Long creatorId,AddTaskDto addTaskDto){
 
         Task task = new Task();
         task.setName(addTaskDto.taskName());
