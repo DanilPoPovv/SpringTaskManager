@@ -1,6 +1,6 @@
 package com.danilpopov.taskmanager.presentation.controller.Dto.Response;
 
-public record TaskResponseDto (
+public record TaskResponse(
          Long id,
          String name,
          Long creatorId

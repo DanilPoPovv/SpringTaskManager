@@ -1,16 +1,15 @@
 package com.danilpopov.taskmanager.presentation.controller;
 
-import com.danilpopov.taskmanager.Domain.Entity.Task;
 import com.danilpopov.taskmanager.Domain.Entity.User;
 import com.danilpopov.taskmanager.application.TaskService;
-import com.danilpopov.taskmanager.presentation.controller.Dto.AddTaskDto;
-import com.danilpopov.taskmanager.presentation.controller.Dto.Response.TaskResponseDto;
-import com.danilpopov.taskmanager.presentation.controller.Dto.UpdateTaskDto;
+import com.danilpopov.taskmanager.presentation.controller.Dto.Requests.AddTaskRequest;
+import com.danilpopov.taskmanager.presentation.controller.Dto.Response.Pagination;
+import com.danilpopov.taskmanager.presentation.controller.Dto.Response.TaskListResponse;
+import com.danilpopov.taskmanager.presentation.controller.Dto.Response.TaskResponse;
+import com.danilpopov.taskmanager.presentation.controller.Dto.Requests.UpdateTaskRequest;
 import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("api/v1")
@@ -22,21 +21,24 @@ public class TaskController {
     }
 
     @GetMapping("tasks/{taskId}")
-    public TaskResponseDto getById(@PathVariable Long taskId)
+    public TaskResponse getById(@PathVariable Long taskId)
     {
         return taskService.getById(taskId);
     }
-    @GetMapping("tasks")
-    public List<Task> getAllTask(){
-        return taskService.getAllTask();
+    @GetMapping("/tasks")
+    public Pagination<TaskListResponse> getTasks(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "20") Integer size
+    ) {
+        return taskService.getPaginationTask(page,size);
     }
     @PostMapping("tasks")
-    public TaskResponseDto createTask(@AuthenticationPrincipal User user, @Valid @RequestBody AddTaskDto addTaskDto){
-        return taskService.addTask(user.getId(),addTaskDto);
+    public TaskResponse createTask(@AuthenticationPrincipal User user, @Valid @RequestBody AddTaskRequest addTaskRequest){
+        return taskService.addTask(user.getId(), addTaskRequest);
     }
     @PutMapping("tasks/{taskId}")
-    public TaskResponseDto updateTask(@PathVariable Long taskId, @RequestBody UpdateTaskDto updateTaskDto){
-        return taskService.updateTask(taskId, updateTaskDto);
+    public TaskResponse updateTask(@PathVariable Long taskId, @RequestBody UpdateTaskRequest updateTaskRequest){
+        return taskService.updateTask(taskId, updateTaskRequest);
     }
     @DeleteMapping("tasks/{taskId}")
     public void deleteTask(@PathVariable Long taskId){

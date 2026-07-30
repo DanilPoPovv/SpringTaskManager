@@ -3,9 +3,9 @@ package com.danilpopov.taskmanager.application;
 import com.danilpopov.taskmanager.Domain.Entity.Project;
 
 import com.danilpopov.taskmanager.infrastructure.ProjectRepository;
-import com.danilpopov.taskmanager.presentation.controller.Dto.AddProjectDto;
-import com.danilpopov.taskmanager.presentation.controller.Dto.ProjectUpdateDto;
-import com.danilpopov.taskmanager.presentation.controller.Dto.Response.ProjectResponseDto;
+import com.danilpopov.taskmanager.presentation.controller.Dto.Requests.AddProjectRequest;
+import com.danilpopov.taskmanager.presentation.controller.Dto.Requests.ProjectUpdateRequest;
+import com.danilpopov.taskmanager.presentation.controller.Dto.Response.ProjectResponse;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -27,22 +27,22 @@ public class ProjectService {
     public Project getById(Long id){
         return projectRepository.findById(id).orElseThrow(() -> new RuntimeException("project Not Found"));
     }
-    public ProjectResponseDto create(AddProjectDto addProjectDto){
+    public ProjectResponse create(AddProjectRequest addProjectRequest){
         Project project = new Project();
-        if(!projectRepository.isProjectExists(addProjectDto.projectName())){
+        if(!projectRepository.isProjectExists(addProjectRequest.projectName())){
             throw new RuntimeException("project already exists");
         }
-        project.setName(addProjectDto.projectName());
+        project.setName(addProjectRequest.projectName());
         projectRepository.save(project);
-        return new ProjectResponseDto(project.getId(),project.getName());
+        return new ProjectResponse(project.getId(),project.getName());
     }
-    public ProjectResponseDto update(Long id, ProjectUpdateDto projectUpdateDto){
+    public ProjectResponse update(Long id, ProjectUpdateRequest projectUpdateRequest){
         Project project = getById(id);
-        if(projectUpdateDto.projectName() != null) {
-            project.setName(projectUpdateDto.projectName());
+        if(projectUpdateRequest.projectName() != null) {
+            project.setName(projectUpdateRequest.projectName());
         }
         projectRepository.update(project);
-        return new ProjectResponseDto(project.getId(),project.getName());
+        return new ProjectResponse(project.getId(),project.getName());
     }
     public void delete(long id) {
         Project project = getById(id);

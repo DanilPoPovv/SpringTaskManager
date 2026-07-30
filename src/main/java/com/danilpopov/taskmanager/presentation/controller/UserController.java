@@ -2,9 +2,9 @@ package com.danilpopov.taskmanager.presentation.controller;
 
 import com.danilpopov.taskmanager.Domain.Entity.User;
 import com.danilpopov.taskmanager.application.UserService;
-import com.danilpopov.taskmanager.presentation.controller.Dto.AddUserDto;
-import com.danilpopov.taskmanager.presentation.controller.Dto.Response.UserResponseDto;
-import com.danilpopov.taskmanager.presentation.controller.Dto.UpdateUserDto;
+import com.danilpopov.taskmanager.presentation.controller.Dto.Requests.AddUserRequest;
+import com.danilpopov.taskmanager.presentation.controller.Dto.Response.UserResponse;
+import com.danilpopov.taskmanager.presentation.controller.Dto.Requests.UpdateUserRequest;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,12 +22,12 @@ public class UserController {
         return userService.getById(userId);
     }
     @PostMapping("user")
-    public User createUser(@AuthenticationPrincipal User user,@RequestBody AddUserDto addUserDto) {
-        return userService.createUser(user.getId(),addUserDto);
+    public User createUser(@AuthenticationPrincipal User user,@RequestBody AddUserRequest addUserRequest) {
+        return userService.createUser(user.getId(), addUserRequest);
     }
     @PutMapping("user/{userId}")
-    public UserResponseDto updateUser(@AuthenticationPrincipal User user, @RequestBody UpdateUserDto updateUserDto){
-        return userService.updateUser(user.getId(), updateUserDto);
+    public UserResponse updateUser(@AuthenticationPrincipal User user, @RequestBody UpdateUserRequest updateUserRequest){
+        return userService.updateUser(user.getId(), updateUserRequest);
     }
     @DeleteMapping("user/{userId}")
     public void deleteUser(@PathVariable Long userId){

@@ -1,8 +1,8 @@
 package com.danilpopov.taskmanager.presentation.controller;
 
 import com.danilpopov.taskmanager.application.AuthService;
-import com.danilpopov.taskmanager.presentation.controller.Dto.LoginDto;
-import com.danilpopov.taskmanager.presentation.controller.Dto.RegisterDto;
+import com.danilpopov.taskmanager.presentation.controller.Dto.Requests.LoginRequest;
+import com.danilpopov.taskmanager.presentation.controller.Dto.Requests.RegisterRequest;
 import com.danilpopov.taskmanager.presentation.controller.Dto.Response.LoginResponse;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
@@ -17,11 +17,11 @@ public class AuthController {
     }
 
     @PostMapping("auth/login")
-    public LoginResponse login(@Valid @RequestBody LoginDto loginDto){
-        return authService.login(loginDto);
+    public LoginResponse login(@Valid @RequestBody LoginRequest loginRequest){
+        return authService.login(loginRequest);
     }
     @PostMapping("auth/register")
-    public LoginResponse register(@Valid @RequestBody RegisterDto registerDto) {
-        return authService.register(registerDto);
+    public LoginResponse register(@Valid @RequestBody RegisterRequest registerRequest) {
+        return authService.register(registerRequest);
     }
 }

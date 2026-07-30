@@ -2,9 +2,9 @@ package com.danilpopov.taskmanager.presentation.controller;
 
 import com.danilpopov.taskmanager.Domain.Entity.Project;
 import com.danilpopov.taskmanager.application.ProjectService;
-import com.danilpopov.taskmanager.presentation.controller.Dto.AddProjectDto;
-import com.danilpopov.taskmanager.presentation.controller.Dto.ProjectUpdateDto;
-import com.danilpopov.taskmanager.presentation.controller.Dto.Response.ProjectResponseDto;
+import com.danilpopov.taskmanager.presentation.controller.Dto.Requests.AddProjectRequest;
+import com.danilpopov.taskmanager.presentation.controller.Dto.Requests.ProjectUpdateRequest;
+import com.danilpopov.taskmanager.presentation.controller.Dto.Response.ProjectResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,22 +41,22 @@ public class ProjectController {
 
 
     @PostMapping
-    public ResponseEntity<ProjectResponseDto> create(
-            @RequestBody AddProjectDto addProjectDto
+    public ResponseEntity<ProjectResponse> create(
+            @RequestBody AddProjectRequest addProjectRequest
             ) {
         return ResponseEntity.ok(
-                projectService.create(addProjectDto)
+                projectService.create(addProjectRequest)
         );
     }
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProjectResponseDto> update(
+    public ResponseEntity<ProjectResponse> update(
             @PathVariable Long id,
-            @RequestBody ProjectUpdateDto projectUpdateDto
+            @RequestBody ProjectUpdateRequest projectUpdateRequest
             ) {
         return ResponseEntity.ok(
-                projectService.update(id, projectUpdateDto)
+                projectService.update(id, projectUpdateRequest)
         );
     }
 

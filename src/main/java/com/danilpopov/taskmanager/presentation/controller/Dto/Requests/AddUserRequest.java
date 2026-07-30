@@ -1,10 +1,9 @@
-package com.danilpopov.taskmanager.presentation.controller.Dto;
+package com.danilpopov.taskmanager.presentation.controller.Dto.Requests;
 
 import com.danilpopov.taskmanager.Domain.Entity.Role;
 import jakarta.validation.constraints.NotBlank;
-import org.aspectj.bridge.IMessage;
 
-public record AddUserDto(
+public record AddUserRequest(
         @NotBlank(message = "Username is required")
         String username,
         @NotBlank(message = "Password is required")

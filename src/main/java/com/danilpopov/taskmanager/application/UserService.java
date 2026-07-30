@@ -3,11 +3,10 @@ package com.danilpopov.taskmanager.application;
 import com.danilpopov.taskmanager.Domain.Entity.Role;
 import com.danilpopov.taskmanager.Domain.Entity.User;
 import com.danilpopov.taskmanager.infrastructure.UserRepository;
-import com.danilpopov.taskmanager.presentation.controller.Dto.AddUserDto;
-import com.danilpopov.taskmanager.presentation.controller.Dto.Response.UserResponseDto;
-import com.danilpopov.taskmanager.presentation.controller.Dto.UpdateUserDto;
+import com.danilpopov.taskmanager.presentation.controller.Dto.Requests.AddUserRequest;
+import com.danilpopov.taskmanager.presentation.controller.Dto.Response.UserResponse;
+import com.danilpopov.taskmanager.presentation.controller.Dto.Requests.UpdateUserRequest;
 import jakarta.transaction.Transactional;
-import org.springframework.expression.AccessException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -28,41 +27,41 @@ public class UserService {
                 orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-    public User createUser(Long userCreatorId,AddUserDto addUserDto){
+    public User createUser(Long userCreatorId, AddUserRequest addUserRequest){
         var userCreator = userRepository.findById(userCreatorId).orElseThrow(() -> new RuntimeException("creator not found"));
         if(userCreator.getRole().equals(Role.ADMIN)) {
             throw new RuntimeException("Not enough rights");
         }
-        if(userRepository.isUserExists(addUserDto.username())) {
+        if(userRepository.isUserExists(addUserRequest.username())) {
             throw new RuntimeException("User already exists");
         }
         var user = new User();
-        user.setUsername(addUserDto.username());
-        user.setPasswordHash(passwordEncoder.encode(addUserDto.password()));
-        user.setRole(addUserDto.role());
+        user.setUsername(addUserRequest.username());
+        user.setPasswordHash(passwordEncoder.encode(addUserRequest.password()));
+        user.setRole(addUserRequest.role());
         return userRepository.save(user);
     }
-    public UserResponseDto updateUser(Long userId, UpdateUserDto updateUserDto){
-        if(updateUserDto.username() == null && updateUserDto.newPassword() == null){
+    public UserResponse updateUser(Long userId, UpdateUserRequest updateUserRequest){
+        if(updateUserRequest.username() == null && updateUserRequest.newPassword() == null){
             throw new RuntimeException("Incorrect data");
         }
         User user = userRepository.findById(userId).
                 orElseThrow(() -> new RuntimeException("User not found"));
-        if(updateUserDto.username() != null){
-            if(userRepository.isUserExists(updateUserDto.username())){
+        if(updateUserRequest.username() != null){
+            if(userRepository.isUserExists(updateUserRequest.username())){
                 throw new RuntimeException("User already exists");
             }
-            user.setUsername(updateUserDto.username());
+            user.setUsername(updateUserRequest.username());
         }
-        if(updateUserDto.oldPassword() != null && updateUserDto.newPassword() != null) {
+        if(updateUserRequest.oldPassword() != null && updateUserRequest.newPassword() != null) {
             var passwordCorrect = passwordEncoder.
-                    matches(updateUserDto.oldPassword(),user.getPasswordHash());
+                    matches(updateUserRequest.oldPassword(),user.getPasswordHash());
             if(!passwordCorrect) {
                 throw new RuntimeException("Old password incorrect");
             }
-            user.setPasswordHash(passwordEncoder.encode(updateUserDto.newPassword()));
+            user.setPasswordHash(passwordEncoder.encode(updateUserRequest.newPassword()));
         }
-        return new UserResponseDto(user.getUsername(),user.getRole());
+        return new UserResponse(user.getUsername(),user.getRole());
     }
     public void deleteUser(Long userId){
         User user = userRepository.findById(userId).
