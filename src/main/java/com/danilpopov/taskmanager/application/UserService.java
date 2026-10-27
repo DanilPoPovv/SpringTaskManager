@@ -6,6 +6,10 @@ import com.danilpopov.taskmanager.infrastructure.UserRepository;
 import com.danilpopov.taskmanager.presentation.controller.Dto.Requests.AddUserRequest;
 import com.danilpopov.taskmanager.presentation.controller.Dto.Response.UserResponse;
 import com.danilpopov.taskmanager.presentation.controller.Dto.Requests.UpdateUserRequest;
+import com.danilpopov.taskmanager.presentation.controller.exception.AccessDeniedException;
+import com.danilpopov.taskmanager.presentation.controller.exception.EntityExistException;
+import com.danilpopov.taskmanager.presentation.controller.exception.InvalidDataException;
+import com.danilpopov.taskmanager.presentation.controller.exception.NotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -24,16 +28,16 @@ public class UserService {
 
     public User getById(Long userId) {
         return userRepository.findById(userId).
-                orElseThrow(() -> new RuntimeException("User not found"));
+                orElseThrow(() -> new NotFoundException("User not found"));
     }
 
     public User createUser(Long userCreatorId, AddUserRequest addUserRequest){
-        var userCreator = userRepository.findById(userCreatorId).orElseThrow(() -> new RuntimeException("creator not found"));
+        var userCreator = userRepository.findById(userCreatorId).orElseThrow(() -> new NotFoundException("creator not found"));
         if(userCreator.getRole().equals(Role.ADMIN)) {
-            throw new RuntimeException("Not enough rights");
+            throw new AccessDeniedException("Not enough rights");
         }
         if(userRepository.isUserExists(addUserRequest.username())) {
-            throw new RuntimeException("User already exists");
+            throw new EntityExistException("User already exists");
         }
         var user = new User();
         user.setUsername(addUserRequest.username());
@@ -43,13 +47,13 @@ public class UserService {
     }
     public UserResponse updateUser(Long userId, UpdateUserRequest updateUserRequest){
         if(updateUserRequest.username() == null && updateUserRequest.newPassword() == null){
-            throw new RuntimeException("Incorrect data");
+            throw new InvalidDataException("Incorrect data");
         }
         User user = userRepository.findById(userId).
-                orElseThrow(() -> new RuntimeException("User not found"));
+                orElseThrow(() -> new NotFoundException("User not found"));
         if(updateUserRequest.username() != null){
             if(userRepository.isUserExists(updateUserRequest.username())){
-                throw new RuntimeException("User already exists");
+                throw new EntityExistException("User already exists");
             }
             user.setUsername(updateUserRequest.username());
         }
@@ -57,7 +61,7 @@ public class UserService {
             var passwordCorrect = passwordEncoder.
                     matches(updateUserRequest.oldPassword(),user.getPasswordHash());
             if(!passwordCorrect) {
-                throw new RuntimeException("Old password incorrect");
+                throw new InvalidDataException("Old password incorrect");
             }
             user.setPasswordHash(passwordEncoder.encode(updateUserRequest.newPassword()));
         }
@@ -65,7 +69,7 @@ public class UserService {
     }
     public void deleteUser(Long userId){
         User user = userRepository.findById(userId).
-                orElseThrow(() -> new RuntimeException("User not found"));
+                orElseThrow(() -> new NotFoundException("User not found"));
         userRepository.delete(user);
     }
 }

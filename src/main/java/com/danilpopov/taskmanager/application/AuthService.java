@@ -7,6 +7,8 @@ import com.danilpopov.taskmanager.infrastructure.UserRepository;
 import com.danilpopov.taskmanager.presentation.controller.Dto.Requests.LoginRequest;
 import com.danilpopov.taskmanager.presentation.controller.Dto.Requests.RegisterRequest;
 import com.danilpopov.taskmanager.presentation.controller.Dto.Response.LoginResponse;
+import com.danilpopov.taskmanager.presentation.controller.exception.EntityExistException;
+import com.danilpopov.taskmanager.presentation.controller.exception.InvalidDataException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,17 +26,17 @@ public class AuthService {
 
     public LoginResponse login(LoginRequest loginRequest){
         User user = userRepository.findByUsername(loginRequest.username())
-                .orElseThrow(() -> new RuntimeException("Invalid username or password"));
+                .orElseThrow(() -> new InvalidDataException("Invalid username or password"));
 
         if(!passwordEncoder.matches(loginRequest.password(), user.getPasswordHash())){
-            throw new RuntimeException("Invalid username or password");
+            throw new InvalidDataException("Invalid username or password");
         }
 
         return new LoginResponse(jwtService.generateJwt(user));
     }
     public LoginResponse register(RegisterRequest registerRequest) {
         if(userRepository.isUserExists(registerRequest.username())){
-            throw new RuntimeException("User already exists");
+            throw new EntityExistException("User already exists");
         }
         var user = new User();
         user.setUsername(registerRequest.username());

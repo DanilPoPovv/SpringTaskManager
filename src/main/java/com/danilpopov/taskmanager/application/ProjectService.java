@@ -6,6 +6,8 @@ import com.danilpopov.taskmanager.infrastructure.ProjectRepository;
 import com.danilpopov.taskmanager.presentation.controller.Dto.Requests.AddProjectRequest;
 import com.danilpopov.taskmanager.presentation.controller.Dto.Requests.ProjectUpdateRequest;
 import com.danilpopov.taskmanager.presentation.controller.Dto.Response.ProjectResponse;
+import com.danilpopov.taskmanager.presentation.controller.exception.EntityExistException;
+import com.danilpopov.taskmanager.presentation.controller.exception.NotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -25,12 +27,12 @@ public class ProjectService {
         return projectRepository.getAll();
     }
     public Project getById(Long id){
-        return projectRepository.findById(id).orElseThrow(() -> new RuntimeException("project Not Found"));
+        return projectRepository.findById(id).orElseThrow(() -> new NotFoundException("project Not Found"));
     }
     public ProjectResponse create(AddProjectRequest addProjectRequest){
         Project project = new Project();
         if(!projectRepository.isProjectExists(addProjectRequest.projectName())){
-            throw new RuntimeException("project already exists");
+            throw new EntityExistException("project already exists");
         }
         project.setName(addProjectRequest.projectName());
         projectRepository.save(project);

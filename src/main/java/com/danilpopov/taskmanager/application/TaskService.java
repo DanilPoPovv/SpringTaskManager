@@ -12,6 +12,7 @@ import com.danilpopov.taskmanager.presentation.controller.Dto.Response.Paginatio
 import com.danilpopov.taskmanager.presentation.controller.Dto.Response.TaskListResponse;
 import com.danilpopov.taskmanager.presentation.controller.Dto.Response.TaskResponse;
 import com.danilpopov.taskmanager.presentation.controller.Dto.Requests.UpdateTaskRequest;
+import com.danilpopov.taskmanager.presentation.controller.exception.NotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +34,7 @@ public class TaskService {
 
     public TaskResponse getById(Long taskId){
         var task = taskRepository.findById(taskId).orElseThrow(
-                () -> new RuntimeException("Task not found"));
+                () -> new NotFoundException("Task not found"));
         return new TaskResponse(task.getId(),task.getName(), task.getCreator().getId());
     }
     public Pagination<TaskListResponse> getPaginationTask(Integer page, Integer pageSize){
@@ -47,15 +48,15 @@ public class TaskService {
         Task task = new Task();
         if(addTaskRequest.assigneeId() != null) {
             var user = userRepository.findById(addTaskRequest.assigneeId()).
-                    orElseThrow(() -> new RuntimeException("assignee not found"));
+                    orElseThrow(() -> new NotFoundException("assignee not found"));
             task.setAssignee(user);
         }
-        Project project = projectRepository.findById(addTaskRequest.projectId()).orElseThrow(() -> new RuntimeException("project not found"));
+        Project project = projectRepository.findById(addTaskRequest.projectId()).orElseThrow(() -> new NotFoundException("project not found"));
         task.setProject(project);
         task.setName(addTaskRequest.taskName());
 
         User creator = userRepository.findById(creatorId)
-                .orElseThrow(() -> new RuntimeException("Creator not found"));
+                .orElseThrow(() -> new NotFoundException("Creator not found"));
 
         task.setCreator(creator);
         task.setPriority(addTaskRequest.priority());
@@ -66,7 +67,7 @@ public class TaskService {
     public TaskResponse updateTask(Long taskId, UpdateTaskRequest updateTaskRequest){
 
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new NotFoundException("Task not found"));
 
         if(updateTaskRequest.taskName() != null){
             task.setName(updateTaskRequest.taskName());
@@ -74,7 +75,7 @@ public class TaskService {
 
         if(updateTaskRequest.creatorId() != null){
             User user = userRepository.findById(updateTaskRequest.creatorId())
-                    .orElseThrow(() -> new RuntimeException("Creator not found"));
+                    .orElseThrow(() -> new NotFoundException("Creator not found"));
 
             task.setCreator(user);
         }
@@ -83,7 +84,7 @@ public class TaskService {
     }
     public void deleteTask(Long taskId){
         var task = taskRepository.findById(taskId).orElseThrow(
-                () -> new RuntimeException("Task not found"));
+                () -> new NotFoundException("Task not found"));
         taskRepository.delete(task);
     }
 }
