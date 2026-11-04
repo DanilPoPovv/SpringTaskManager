@@ -54,4 +54,15 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.FORBIDDEN)
                 .body(error);
     }
+    @ExceptionHandler(InvalidDataException.class)
+    public ResponseEntity<ApiError> invalidDataException(InvalidDataException ex) {
+        ApiError error = new ApiError(
+                ex.getMessage(),
+                HttpStatus.BAD_REQUEST.value()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(error);
+    }
 }
