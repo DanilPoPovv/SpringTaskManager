@@ -1,38 +1,52 @@
 package com.danilpopov.taskmanager.application;
 
-import com.danilpopov.taskmanager.Domain.Entity.User;
+import com.danilpopov.taskmanager.Domain.Entity.Role;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.io.Decoders;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
+import javax.crypto.spec.SecretKeySpec;
+import java.time.Instant;
 import java.util.Date;
+
 @Service
 public class JwtService {
-    private SecretKey key;
-    @Value("${jwt.tokenExpirationSeconds}")
-    private Long expiration;
-    public JwtService(@Value("${jwt.secret}") String secret){
-        key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+    private final Long accessTokenDuration;
+    private final Long refreshTokenDuration;
+    private final SecretKeySpec keySpec;
+
+    public JwtService(@Value("${jwt.accessTokenDuration}") Long accessTokenDuration,
+                      @Value("${jwt.refreshTokenDuration}") Long refreshTokenDuration,
+                      @Value("${jwt.secret}") String jwtSecret) {
+        this.accessTokenDuration = accessTokenDuration;
+        this.refreshTokenDuration = refreshTokenDuration;
+        keySpec = new SecretKeySpec(Decoders.BASE64URL.decode(jwtSecret), "HmacSHA256");
     }
-    public String generateJwt(User user){
-        return Jwts.builder()
-                .subject(user.getUsername())
-                .claim("userId",user.getId())
-                .claim("role", user.getRole())
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + expiration * 9999))
-                .signWith(key)
+
+    public String generateAccessToken(Long userId, Role role ) {
+        Instant now = Instant.now();
+
+        return Jwts.builder().subject(userId.toString())
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(now.plusMillis(accessTokenDuration)))
+                .claim("role", "ROLE_" + role.name())
+                .claim("type", "ACCESS")
+                .signWith(keySpec)
                 .compact();
     }
-    public Long extractId(String token){
-        return Jwts.parser()
-                .verifyWith(key)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload()
-                .get("userId", Long.class);
+    public String generateRefreshToken(Long userId) {
+        Instant now = Instant.now();
+
+        return Jwts.builder().subject(userId.toString())
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(now.plusMillis(refreshTokenDuration)))
+                .claim("type", "REFRESH")
+                .signWith(keySpec)
+                .compact();
+    }
+    public Claims verifyJwt(String jwt) {
+        return Jwts.parser().verifyWith(keySpec).build().parseSignedClaims(jwt).getPayload();
     }
 }

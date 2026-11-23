@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -33,7 +32,7 @@ public class UserService {
 
     public User createUser(Long userCreatorId, AddUserRequest addUserRequest){
         var userCreator = userRepository.findById(userCreatorId).orElseThrow(() -> new NotFoundException("creator not found"));
-        if(userCreator.getRole().equals(Role.ADMIN)) {
+        if(userCreator.getRole().equals(Role.USER)) {
             throw new AccessDeniedException("Not enough rights");
         }
         if(userRepository.isUserExists(addUserRequest.username())) {
@@ -42,7 +41,7 @@ public class UserService {
         var user = new User();
         user.setUsername(addUserRequest.username());
         user.setPasswordHash(passwordEncoder.encode(addUserRequest.password()));
-        user.setRole(addUserRequest.role());
+        user.setRole(Role.USER);
         return userRepository.save(user);
     }
     public UserResponse updateUser(Long userId, UpdateUserRequest updateUserRequest){
@@ -52,18 +51,18 @@ public class UserService {
         User user = userRepository.findById(userId).
                 orElseThrow(() -> new NotFoundException("User not found"));
         if(updateUserRequest.username() != null){
-            if(userRepository.isUserExists(updateUserRequest.username())){
+            if(userRepository.isUserExists(updateUserRequest.username()) && !user.getUsername().equals(updateUserRequest.username())){
                 throw new EntityExistException("User already exists");
             }
             user.setUsername(updateUserRequest.username());
         }
-        if(updateUserRequest.oldPassword() != null && updateUserRequest.newPassword() != null) {
-            var passwordCorrect = passwordEncoder.
-                    matches(updateUserRequest.oldPassword(),user.getPasswordHash());
-            if(!passwordCorrect) {
-                throw new InvalidDataException("Old password incorrect");
+        if(updateUserRequest.newPassword() != null) {
+            if(passwordEncoder.matches(updateUserRequest.oldPassword(),user.getPasswordHash())){
+                user.setPasswordHash(passwordEncoder.encode(updateUserRequest.newPassword()));
             }
-            user.setPasswordHash(passwordEncoder.encode(updateUserRequest.newPassword()));
+            else{
+                throw new InvalidDataException("Old password does not match");
+            }
         }
         return new UserResponse(user.getUsername(),user.getRole());
     }
